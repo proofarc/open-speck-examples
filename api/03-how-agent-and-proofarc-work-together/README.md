@@ -150,6 +150,61 @@ Steps: 3/3 passed, total 55ms
 
 Both spec scenarios are now proven, with real status codes from a real server.
 
+## Step 5b — Point the test back at the spec
+
+A scenario in ProofArc should be readable on its own. Someone opening execution
+1723 needs to find the requirement it proves without cloning this repo.
+
+**The scenario carries a permalink**, stored in its `description`:
+
+```
+Proves requirement: Anonymous Access Is Refused
+Spec: https://github.com/proofarc/open-speck-examples/blob/main/api/01-existing-api-contract/
+      openspec/changes/add-user-account-management/specs/user-accounts/spec.md#requirement-anonymous-access-is-refused
+Change: add-user-account-management
+```
+
+The anchor is built the way GitHub builds it: `### Requirement: Anonymous Access
+Is Refused` lowercased, spaces to hyphens, colon dropped.
+
+**The run carries tags**:
+
+```
+execute_scenario(scenario=1565, environment=575,
+  tags=["openspec", "change:add-user-account-management",
+        "req:anonymous-access-is-refused"])
+```
+
+`tags` must be a **list** — a comma-separated string is rejected.
+
+**Why both.** The description is for a human. The tags make the requirement
+re-runnable by name:
+
+```
+run_by_tag(tags=["req:anonymous-access-is-refused"], project=673,
+           environment=575, dry_run=true)
+```
+
+```json
+{ "would_queue": { "api_scenarios": [{ "id": 1565,
+                     "name": "OpenSpec REQ-AUTH-USERS — anonymous refused" }] },
+  "note": "API scenario matches are derived from execution history
+           (scenarios have no static tags column yet)." }
+```
+
+Read that note carefully: **matches come from execution history**, so a scenario
+never run with these tags cannot be found this way. Tag every run, not only the
+first. And `dry_run` first — it returns the plan without executing.
+
+Now the traceability runs both ways:
+
+```
+spec.md  ──(scenario description permalink)──▶  ProofArc scenario 1565
+spec.md  ◀──(scenario + execution ids)────────  evidence file
+requirement slug  ──(run tags)──▶  run_by_tag re-runs it on demand
+```
+
+
 ## Step 6 — Record it against the requirement
 
 ```markdown
@@ -175,8 +230,8 @@ agent   compares the test against the spec — finds a scenario not covered
 agent → validate_scenario_yaml(extended)      free, writes nothing
       ← valid
 agent → update_api_scenario_from_yaml(1565)
-agent → execute_scenario(1565)
-      ← execution 1722, 3/3 passed
+agent → execute_scenario(1565, tags=[req:..., change:...])
+      ← execution 1723, 3/3 passed
 agent   writes scenario + execution ids into the evidence file
 ```
 

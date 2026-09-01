@@ -77,20 +77,57 @@ executed.
      use create_data_driven_set, giving every row a testName. One verdict per row
      beats one aggregate.
 
-5. ASSERT THE CLAUSE, NOT THE CALL
+5. MAKE THE TEST POINT BACK AT THE SPEC
+
+   Someone opening a scenario in ProofArc must be able to find the requirement
+   it proves, without access to this repo. Two places carry it.
+
+   a) The scenario's `description` - a permalink to the requirement heading:
+
+        description: "Proves requirement: Anonymous Access Is Refused
+          Spec: https://github.com/<org>/<repo>/blob/main/<path-to>/spec.md#requirement-anonymous-access-is-refused
+          Change: add-user-account-management"
+
+      Build the anchor the way GitHub does: take the heading
+      `### Requirement: Anonymous Access Is Refused`, lowercase it, replace
+      spaces with hyphens, drop the colon
+      -> `#requirement-anonymous-access-is-refused`.
+
+      Prefer a permalink to a commit SHA over `main` when the change is
+      archived, so the link keeps pointing at the wording that was proven.
+
+   b) The RUN's tags - pass them on every execute_scenario:
+
+        tags=["openspec", "change:<change-id>", "req:<requirement-slug>"]
+
+      `tags` must be a LIST. A comma-separated string is rejected.
+
+   Why both: the description is for a human reading the scenario. The tags are
+   what make the requirement re-runnable by name:
+
+        run_by_tag(tags=["req:anonymous-access-is-refused"],
+                   project=<id>, environment=<id>, dry_run=true)
+
+   API scenario matches are derived from EXECUTION history - scenarios have no
+   static tags column - so a scenario that has never been run with these tags
+   cannot be found this way. Tag every run, not just the first.
+
+   Always dry_run first: it returns the queueing plan without executing.
+
+6. ASSERT THE CLAUSE, NOT THE CALL
    A status code alone rarely proves a requirement. If a THEN says the change
    persists, re-read it. If it says a value is absent, assert its absence. If it
    says a duplicate is refused, send the duplicate.
    Before trusting a green assertion, invert it once and confirm it fails. An
    assertion that passes both ways is testing nothing.
 
-6. RUN AND RECORD
+7. RUN AND RECORD
    execute_scenario against the environment, then record for each requirement:
    the scenario id, the execution id, the per-step verdict, and the HTTP codes.
    Report failures as failures. Never widen an expectation to make a test pass —
    a red test is the finding, and rebaselining destroys it permanently.
 
-7. STATE READINESS
+8. STATE READINESS
    If every bound test is green, say so. If any requirement is contradicted by
    the service, this change is NOT ready to archive, and the failing requirement
    is named at the top.
