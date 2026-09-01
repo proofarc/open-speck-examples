@@ -1,0 +1,39 @@
+# spec-driven-verified
+#
+# The stock spec-driven schema plus one artifact: runtime evidence.
+# Everything before `verification` is unchanged, so an existing project can
+# switch to this schema without rewriting anything.
+
+name: spec-driven-verified
+description: >
+  Spec-driven development with executable verification. Each WHEN/THEN scenario
+  is bound to a test in ProofArc, and the change carries scenario and execution
+  ids as evidence rather than a written judgement.
+
+artifacts:
+  - id: proposal
+    template: proposal.md
+    description: Why the change exists and what it affects
+
+  - id: specs
+    template: spec.md
+    requires: [proposal]
+    description: Requirements with WHEN/THEN scenarios
+
+  - id: design
+    template: design.md
+    requires: [proposal]
+    optional: true
+    description: Decisions worth recording
+
+  - id: tasks
+    template: tasks.md
+    requires: [specs]
+    description: Implementation work
+
+  - id: verification
+    template: verification.md
+    requires: [specs, tasks]
+    description: >
+      Runtime evidence. Each scenario is bound to a ProofArc scenario id, run,
+      and recorded with its execution id and per-step result.
