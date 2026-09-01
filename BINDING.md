@@ -1,6 +1,7 @@
 # Binding — repo ↔ ProofArc
 
-This repo and the ProofArc project reference each other. Both directions are
+This repo lives at `~/github/open-speck-examples`, alongside the other
+repos. It and the ProofArc project reference each other. Both directions are
 recorded so neither side has to guess.
 
 ## Platform → repo
@@ -8,7 +9,7 @@ recorded so neither side has to guess.
 Application **404** (`starter-user-service-api`) carries:
 
 ```
-repoPath        starter/api-test/open-speck-examples
+repoPath        open-speck-examples
 description     …Specs: OpenSpec change artifacts and ProofArc verification
                 evidence live at repo_path.
 gitUrl          (unset — no remote yet)
